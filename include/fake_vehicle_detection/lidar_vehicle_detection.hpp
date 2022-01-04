@@ -1,35 +1,39 @@
-#ifndef FAKE_VEHICLE_DETECTION__PLATOON_MULTI_DISTANCE_ESTIMATOR_HPP_
-#define FAKE_VEHICLE_DETECTION__PLATOON_MULTI_DISTANCE_ESTIMATOR_HPP_
+#ifndef FAKE_VEHICLE_DETECTION__LIDAR_VEHICLE_DETECTION_HPP_
+#define FAKE_VEHICLE_DETECTION__LIDAR_VEHICLE_DETECTION_HPP_
 
 #include <random>
 #include <mutex>
 
+#include <Eigen/Dense>
+
 #include <rclcpp/rclcpp.hpp>
 #include <rcl_interfaces/msg/parameter_descriptor.hpp>
 #include <geometry_msgs/msg/pose_stamped.hpp>
-#include <loco_framework/msg/platoon_detection_array.hpp>
+#include <loco_framework/msg/detection_array.hpp>
+
+#include <fake_vehicle_detection/utils.hpp>
+#include <fake_vehicle_detection/eigenmvn.hpp>
 
 namespace fake_vehicle_detection
 {
 
-class PlatoonMultiDistanceEstimator : public rclcpp::Node
+class LidarVehicleDetection : public rclcpp::Node
 {
 public:
     using Pose = geometry_msgs::msg::PoseStamped;
-    using PlatoonDetection = loco_framework::msg::PlatoonDetection;
-    using PlatoonDetectionArray = loco_framework::msg::PlatoonDetectionArray;
+    using Detection = geometry_msgs::msg::PoseWithCovarianceStamped;
+    using DetectionArray = loco_framework::msg::DetectionArray;
 
     // Smartpointer typedef
-    typedef std::shared_ptr<PlatoonMultiDistanceEstimator> SharedPtr;
-    typedef std::unique_ptr<PlatoonMultiDistanceEstimator> UniquePtr;
+    typedef std::shared_ptr<LidarVehicleDetection> SharedPtr;
+    typedef std::unique_ptr<LidarVehicleDetection> UniquePtr;
 
-    PlatoonMultiDistanceEstimator();
-    PlatoonMultiDistanceEstimator(const rclcpp::NodeOptions& options);
-    virtual ~PlatoonMultiDistanceEstimator();
+    LidarVehicleDetection();
+    LidarVehicleDetection(const rclcpp::NodeOptions& options);
+    virtual ~LidarVehicleDetection();
 
 protected:
     // Parameters
-    double distance_stddev_;
     double bad_measurement_probability_;
     double rate_;
     OnSetParametersCallbackHandle::SharedPtr set_param_callback_handler_;
@@ -54,7 +58,7 @@ protected:
     std::exponential_distribution<> exponential_distribution_;
 
     // Publishers
-    rclcpp::Publisher<PlatoonDetectionArray>::SharedPtr detections_pub_;
+    rclcpp::Publisher<DetectionArray>::SharedPtr detections_pub_;
 
     // Subscribers
     rclcpp::Subscription<Pose>::SharedPtr ego_pose_sub_;
@@ -64,10 +68,13 @@ protected:
     void init();
     void run();
 
-    // Compute the distance from ego pose to target pose i
-    PlatoonDetection compute_distance(const size_t i);
-    // Compute the measurement noise. Returns a tuple with the noise addition and the stddev
-    std::tuple<double, double> compute_noise();
+    // Compute the detection from ego pose to target pose i
+    Detection compute_detection(const size_t i);
+    // Get the noise covariance from the measurement model
+    Eigen::Matrix<double, 2, 2> get_noise_covariance(const double distance, const double angle);
+    // Compute the measurement noise. Returns the noise covariance
+    std::array< std::array<double, 6>, 6> compute_noise(double distance, double angle);
+    std::array<double, 2> generate_noise(const Eigen::Matrix<double, 2, 2>& noise_covariance);
 
     // Param callback
     rcl_interfaces::msg::SetParametersResult set_param_callback(const std::vector<rclcpp::Parameter>& params);
@@ -79,4 +86,4 @@ protected:
 
 }  // namespace fake_vehicle_detection
 
-#endif  // FAKE_VEHICLE_DETECTION__PLATOON_MULTI_DISTANCE_ESTIMATOR_HPP_
+#endif  // FAKE_VEHICLE_DETECTION__LIDAR_VEHICLE_DETECTION_HPP_

@@ -23,7 +23,9 @@ find_package(rclcpp_components REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(loco_framework REQUIRED)
 
+find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 
+# Platoon distance estimator target
 add_library(platoon_distance_estimator_node SHARED
   src/platoon_distance_estimator.cpp
 )
@@ -41,6 +43,7 @@ rclcpp_components_register_node(platoon_distance_estimator_node
   EXECUTABLE platoon_distance_estimator
 )
 
+# Platoon multi-distance estimator target
 add_library(platoon_multi_distance_estimator_node SHARED
   src/platoon_multi_distance_estimator.cpp
 )
@@ -58,6 +61,27 @@ rclcpp_components_register_node(platoon_multi_distance_estimator_node
   EXECUTABLE platoon_multi_distance_estimator
 )
 
+# LiDAR vehicle detection target
+add_library(lidar_vehicle_detection_node SHARED
+  src/lidar_vehicle_detection.cpp
+)
+target_include_directories(lidar_vehicle_detection_node PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+ament_target_dependencies(lidar_vehicle_detection_node
+  rclcpp
+  rclcpp_components
+  geometry_msgs
+  loco_framework
+)
+target_link_libraries(lidar_vehicle_detection_node
+  Eigen3::Eigen
+)
+rclcpp_components_register_node(lidar_vehicle_detection_node
+  PLUGIN "fake_vehicle_detection::LidarVehicleDetection"
+  EXECUTABLE lidar_vehicle_detection
+)
+
 # Causes the visibility macros to use dllexport rather than dllimport,
 # which is appropriate when building the dll but not consuming it.
 # target_compile_definitions(fake_vehicle_detection PRIVATE "fake_vehicle_detection_BUILDING_LIBRARY")
@@ -66,6 +90,7 @@ rclcpp_components_register_node(platoon_multi_distance_estimator_node
 install(TARGETS
   platoon_distance_estimator_node
   platoon_multi_distance_estimator_node
+  lidar_vehicle_detection_node
   EXPORT export_${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
@@ -76,6 +101,7 @@ install(TARGETS
 install(TARGETS
   platoon_distance_estimator
   platoon_multi_distance_estimator
+  lidar_vehicle_detection
   DESTINATION lib/${PROJECT_NAME}
 )
 
@@ -99,6 +125,7 @@ endif()
 ament_export_libraries(
   platoon_distance_estimator_node
   platoon_multi_distance_estimator_node
+  lidar_vehicle_detection_node
 )
 
 ament_package()
