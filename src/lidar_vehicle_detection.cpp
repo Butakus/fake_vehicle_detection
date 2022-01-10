@@ -178,10 +178,10 @@ geometry_msgs::msg::PoseWithCovarianceStamped LidarVehicleDetection::compute_det
     // Compute noise covariance
     Eigen::Matrix<double, 2, 2> noise_cov = this->get_noise_covariance(distance, angle);
     // Generate noise
-    std::array<double, 2> noise = this->generate_noise(noise_cov);
+    Eigen::Vector2d noise = this->generate_noise(noise_cov);
     // Add noise to detection
-    detection_msg.pose.pose.position.x += noise[0];
-    detection_msg.pose.pose.position.y += noise[1];
+    detection_msg.pose.pose.position.x += noise(0);
+    detection_msg.pose.pose.position.y += noise(1);
     // Add covariance
     std::array<std::array<double, 6>, 6> noise_cov_6{};
     noise_cov_6[0][0] = noise_cov(0, 0);
@@ -221,19 +221,13 @@ Eigen::Matrix<double, 2, 2> LidarVehicleDetection::get_noise_covariance(const do
     return cartesian_cov;
 }
 
-std::array<double, 2> LidarVehicleDetection::generate_noise(const Eigen::Matrix<double, 2, 2>& noise_covariance)
+Eigen::Vector2d LidarVehicleDetection::generate_noise(const Eigen::Matrix<double, 2, 2>& noise_covariance)
 {
-    std::array<double, 2> noise{};
-
     // Generate noise sample using multivariate normal distribution
     Eigen::Vector2d noise_mean {0.0, 0.0};
     Eigen::EigenMultivariateNormal<double> normX_solver(noise_mean, noise_covariance);
 
-    Eigen::Vector2d sample = normX_solver.samples(1);
-    noise[0] = sample(0);
-    noise[1] = sample(1);
-
-    return noise;
+    return normX_solver.samples(1);
 }
 
 void LidarVehicleDetection::ego_pose_callback(const Pose::SharedPtr ego_pose_msg)

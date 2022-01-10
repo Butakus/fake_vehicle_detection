@@ -73,8 +73,7 @@ protected:
     // Get the noise covariance from the measurement model
     Eigen::Matrix<double, 2, 2> get_noise_covariance(const double distance, const double angle);
     // Compute the measurement noise. Returns the noise covariance
-    std::array< std::array<double, 6>, 6> compute_noise(double distance, double angle);
-    std::array<double, 2> generate_noise(const Eigen::Matrix<double, 2, 2>& noise_covariance);
+    Eigen::Vector2d generate_noise(const Eigen::Matrix<double, 2, 2>& noise_covariance);
 
     // Param callback
     rcl_interfaces::msg::SetParametersResult set_param_callback(const std::vector<rclcpp::Parameter>& params);
