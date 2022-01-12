@@ -98,7 +98,7 @@ void LidarVehicleDetection::init()
         // Create and store odom subscriber
         rclcpp::Subscription<Pose>::SharedPtr pose_sub =
             this->create_subscription<Pose>(pose_topics[i], rclcpp::SensorDataQoS(),
-                                                pose_callback, sub_options);
+                                            pose_callback, sub_options);
         this->pose_subs_.push_back(pose_sub);
     }
 
@@ -225,9 +225,9 @@ Eigen::Vector2d LidarVehicleDetection::generate_noise(const Eigen::Matrix<double
 {
     // Generate noise sample using multivariate normal distribution
     Eigen::Vector2d noise_mean {0.0, 0.0};
-    Eigen::EigenMultivariateNormal<double> normX_solver(noise_mean, noise_covariance);
+    MultivariateNormal<double, 2> mvn(noise_mean, noise_covariance);
 
-    return normX_solver.samples(1);
+    return mvn.sample(this->random_generator_);
 }
 
 void LidarVehicleDetection::ego_pose_callback(const Pose::SharedPtr ego_pose_msg)

@@ -12,7 +12,7 @@
 #include <loco_framework/msg/detection_array.hpp>
 
 #include <fake_vehicle_detection/utils.hpp>
-#include <fake_vehicle_detection/eigenmvn.hpp>
+#include <fake_vehicle_detection/mvn.hpp>
 
 namespace fake_vehicle_detection
 {
