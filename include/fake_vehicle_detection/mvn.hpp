@@ -1,6 +1,7 @@
 /*  Multivariate Normal distribution implementation based on Eigen and C++11 random utilities.
     Inspired in:
         https://github.com/beniz/eigenmvn
+        https://stackoverflow.com/questions/6142576/sample-from-multivariate-normal-gaussian-distribution-in-c
         http://stackoverflow.com/questions/16361226/error-while-creating-object-from-templated-class
         http://lost-found-wandering.blogspot.fr/2011/05/sampling-from-multivariate-normal-in-c.html
 */
