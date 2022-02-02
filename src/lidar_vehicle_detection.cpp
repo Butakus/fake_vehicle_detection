@@ -38,6 +38,7 @@ void LidarVehicleDetection::init()
     rcl_interfaces::msg::ParameterDescriptor read_only_descriptor;
     read_only_descriptor.read_only = true;
 
+    this->max_detection_range_ = this->declare_parameter("max_detection_range", 50.0, read_only_descriptor);
     this->rate_ = this->declare_parameter("rate", 20.0, read_only_descriptor);
     std::vector<std::string> pose_topics;
     pose_topics = this->declare_parameter("pose_topics", pose_topics, read_only_descriptor);
@@ -126,6 +127,7 @@ void LidarVehicleDetection::run()
             detections->header = this->ego_pose_->header;
             if (this->poses_received_[i])
             {
+                if (compute_distance(this->ego_pose_->pose, this->poses_[i].pose) <= this->max_detection_range_)
                 detections->detections.push_back(compute_detection(i));
             }
         }

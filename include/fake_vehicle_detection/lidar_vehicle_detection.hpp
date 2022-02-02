@@ -35,6 +35,7 @@ public:
 protected:
     // Parameters
     double bad_measurement_probability_;
+    double max_detection_range_;
     double rate_;
     OnSetParametersCallbackHandle::SharedPtr set_param_callback_handler_;
 
