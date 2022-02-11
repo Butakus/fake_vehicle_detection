@@ -198,7 +198,7 @@ geometry_msgs::msg::PoseWithCovarianceStamped LidarVehicleDetection::compute_det
 Eigen::Matrix<double, 2, 2> LidarVehicleDetection::get_noise_covariance(const double distance, const double angle)
 {
     // Measurement model adapted from LPO landmark detection model
-    double distance_std = 0.00055 * distance + 0.0008;
+    double distance_std = 0.00045 * distance + 0.001;
     double angle_std = 0.001; // rad
     double angle_std_scaled = distance * std::tan(angle_std);
 
